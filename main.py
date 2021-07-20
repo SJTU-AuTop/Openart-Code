@@ -1,4 +1,5 @@
-print("AuTop Openart starting")
+print("SJTU-AuTop Openart starting")
+print("github: https://github.com/SJTU-AuTop")
 import sensor, image, time, math, os, tf 
 from machine import UART,Pin
 from pyb import LED
@@ -27,17 +28,17 @@ uart_str = b'\x09'
 
 #Load Two_class net 动物水果三分类模型
 animal_fruit_labels = ["neg","animals","fruit"]
-#tf_animal_fruit_net = tf.load("/models/fruit_animal_64x64_quant.tflite", load_to_fb=True)
-tf_animal_fruit_net = tf.load("/models/model_07_1.0000_quant.tflite", load_to_fb=True)
+#tf_animal_fruit_net = tf.load("fruit_animal_64x64_quant.tflite", load_to_fb=True)
+tf_animal_fruit_net = tf.load("fruit_animal_quant.tflite", load_to_fb=True)
 
 #Load Num net 找框+数字识别分类
 #num_labels = ["neg","0", "1", "2", "3","4","5", "6", "7", "8", "9"]
-#tf_num_net = tf.load("/models/digit_24x24_quant2.tflite", load_to_fb=True)
+#tf_num_net = tf.load("digit_24x24_quant.tflite", load_to_fb=True)
 
 #Load Full_num net 数字识别全局分类器
 full_num_labels = ["0", "1", "2", "3","4","5", "6", "7", "8", "9","neg"]
-#full_num_net = tf.load("/models/model_20_0.9316_quant.tflite", load_to_fb=True)
-full_num_net = tf.load("/models/number160x64_quant.tflite", load_to_fb=True)
+#full_num_net = tf.load("number128x64_quant.tflite", load_to_fb=True)
+full_num_net = tf.load("number160x64_quant.tflite", load_to_fb=True)
 
 net_threshold = 0.01
 rect_threshold = 50000
@@ -83,14 +84,16 @@ while(True):
 
     ## Number detect Demo
     if(uart_str==b'\x02'):
+        #对指定ROI进行全局分类
         result = full_num_net.classify(img,roi = ((320-160)//2,25,160,64))[0].output()
         max_score = max(result)
-
         max_label = result.index(max_score)
-        print(max_label,time.ticks() - ts)
+
         if(show == True):
             img.draw_string((320-160)//2 + 80, 5, str(max_label)+str(": ")+ str(max_score),color = (255,0,0), scale = 2,mono_space=False)
             img.draw_rectangle(((320-160)//2,25,160,64), color = (255, 0, 0))
+
+        #串口通信
         if(max_label<10):
             if((max_label)%2==0):
                uart_array = bytearray([0XFF,int(2),int(0),int(0),int(0)]) 

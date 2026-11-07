@@ -5,7 +5,7 @@ def load():
     try:
         fd = open('/sd/cmm_cfg.csv')
         print('loading /sd/cmm_cfg.csv')
-    except:
+    except OSError:
         fd = open('/flash/cmm_cfg.csv')
         print('loading /flash/cmm_cfg.csv')
     dict = {}
